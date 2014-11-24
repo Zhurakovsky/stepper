@@ -21,20 +21,20 @@ int main() {
     while ( counter > 0 ) {
         bcm2835_gpio_write(PIN1, HIGH);
         bcm2835_gpio_write(PIN2, LOW);
-        bcm2835_gpio_write(PIN3, HIGH);
+        bcm2835_gpio_write(PIN3, LOW);
         bcm2835_gpio_write(PIN4, LOW);
         bcm2835_delay(50);
         bcm2835_gpio_write(PIN1, LOW);
-        bcm2835_gpio_write(PIN2, HIGH);
+        bcm2835_gpio_write(PIN2, LOW);
         bcm2835_gpio_write(PIN3, HIGH);
         bcm2835_gpio_write(PIN4, LOW);
         bcm2835_delay(50);
         bcm2835_gpio_write(PIN1, LOW);
         bcm2835_gpio_write(PIN2, HIGH);
         bcm2835_gpio_write(PIN3, LOW);
-        bcm2835_gpio_write(PIN4, HIGH);
+        bcm2835_gpio_write(PIN4, LOW);
         bcm2835_delay(50);
-        bcm2835_gpio_write(PIN1, HIGH);
+        bcm2835_gpio_write(PIN1, LOW);
         bcm2835_gpio_write(PIN2, LOW);
         bcm2835_gpio_write(PIN3, LOW);
         bcm2835_gpio_write(PIN4, HIGH);

@@ -3,17 +3,20 @@ import RPi.GPIO as GPIO
 #Use BCM GPIO references
 #Instead of physical pin numbers
 
-GPIO.setmode(GPIO.BCM)
+GPIO.setmode(GPIO.BOARD)
 #Define GPIO signals to use
 
-Pins 12,16,18,22
-GPIO18,GPIO23,GPIO24,GPIO25
-StepPins = [18,23,24,25]
+#Pins 12,16,18,22
+#GPIO18,GPIO23,GPIO24,GPIO25
+StepPins = [12,16,18,22]
 #Set all pins as output for pin in StepPins:
 
 print "Setup pins"
-  GPIO.setup(pin,GPIO.OUT)
-  GPIO.output(pin, False)
+pins = [12, 16, 18, 22]
+for pin in pins:
+    GPIO.setup(pin,GPIO.OUT)
+    GPIO.output(pin, False)
+
 
 #Define some settings
 
