@@ -62,6 +62,7 @@ int main() {
     
     makeStep(blankString);
     bcm2835_close();
+    
     return 0;
 }
 
