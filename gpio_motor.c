@@ -10,7 +10,6 @@
 void prepareStep(char *s[], int steps, int counter);
 void makeStep(char *ws);
 
-
 int main() {
     int scale = 0;
     int i;
@@ -18,6 +17,7 @@ int main() {
     char* steps4[4];
     char* steps8[8];
     char* workingSteps;
+    char *blankString = "0 0 0 0";
     
     if ( !bcm2835_init() ) {
         return 1;
@@ -60,11 +60,7 @@ int main() {
         return 0;
     }
     
-
-    bcm2835_gpio_write(PIN1, LOW);
-    bcm2835_gpio_write(PIN2, LOW);
-    bcm2835_gpio_write(PIN3, LOW);
-    bcm2835_gpio_write(PIN4, LOW);
+    makeStep(blankString);
     bcm2835_close();
     return 0;
 }
@@ -92,6 +88,7 @@ void prepareStep(char *s[], int scale, int counter) {
 void makeStep(char *ws) {
     int a[4];
     int i;
+    
     for ( i = 0; i < 4 && *ws != '\0'; ) {
         if ( *ws != ' ' ) {
             a[i] = *ws - '0';
@@ -108,4 +105,3 @@ void makeStep(char *ws) {
     bcm2835_gpio_write(PIN4, a[3]);
     bcm2835_delay(50);
 }
-
