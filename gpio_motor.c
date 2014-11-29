@@ -82,6 +82,7 @@ void prepareStep(char *s[], int scale, int counter) {
             ws = s[i];
             makeStep(ws);
         }
+        counter -= 1;
     }
     makeStep(blankString);
 }
