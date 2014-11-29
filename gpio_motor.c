@@ -3,11 +3,11 @@
 #include <stdio.h>
 
 
+#define PIN5 RPI_V2_GPIO_P1_07
 #define PIN1 RPI_V2_GPIO_P1_12
 #define PIN2 RPI_V2_GPIO_P1_16
 #define PIN3 RPI_V2_GPIO_P1_18
 #define PIN4 RPI_V2_GPIO_P1_22
-#define PIN5 RPI_V2_GPIO_P1_7
 
 void prepareStep(char *s[], int steps, int counter);
 void makeStep(char *ws);
@@ -73,7 +73,7 @@ void prepareStep(char *s[], int scale, int counter) {
     int i;
     char *ws;
     char *blankString = "0 0 0 0";
-    uint8_t value;
+    uint8_t value = 0;
     
     bcm2835_gpio_fsel(PIN1, BCM2835_GPIO_FSEL_OUTP);
     bcm2835_gpio_fsel(PIN2, BCM2835_GPIO_FSEL_OUTP);
@@ -84,6 +84,7 @@ void prepareStep(char *s[], int scale, int counter) {
     
     while ( counter > 0 ) {
         value = bcm2835_gpio_lev(PIN5);
+        printf("Value of input = %d\n", value);
         if ( value == 1 ) {
             for ( i = 0; i < scale; i++ ) {
                 ws = s[i];
@@ -114,6 +115,4 @@ void makeStep(char *ws) {
     bcm2835_gpio_write(PIN3, a[2]);
     bcm2835_gpio_write(PIN4, a[3]);
     bcm2835_delay(50);
-}
- bcm2835_delay(50);
 }
