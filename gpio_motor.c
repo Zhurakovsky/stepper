@@ -89,10 +89,8 @@ void prepareStep(char *s[], int scale, int counter) {
                 ws = s[i];
                 makeStep(ws);
             }
-
-                counter -= 1;
+            counter -= 1;
         }
-        counter -= 1;
     }
     makeStep(blankString);
 }
@@ -116,4 +114,6 @@ void makeStep(char *ws) {
     bcm2835_gpio_write(PIN3, a[2]);
     bcm2835_gpio_write(PIN4, a[3]);
     bcm2835_delay(50);
+}
+ bcm2835_delay(50);
 }
