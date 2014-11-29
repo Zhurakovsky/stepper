@@ -2,21 +2,13 @@
 #include <bcm2835.h>
 #include <stdio.h>
 
-<<<<<<< HEAD
-
-#define PIN5 RPI_V2_GPIO_P1_07
-=======
->>>>>>> 38c7ec375d7d3ed5c305a00cc6b409598549b6a2
 #define PIN1 RPI_V2_GPIO_P1_12
 #define PIN2 RPI_V2_GPIO_P1_16
 #define PIN3 RPI_V2_GPIO_P1_18
 #define PIN4 RPI_V2_GPIO_P1_22
-<<<<<<< HEAD
-=======
 #define PIN5 RPI_V2_GPIO_P1_07
 #define PIN6 RPI_V2_GPIO_P1_11
 #define PIN7 RPI_V2_GPIO_P1_15
->>>>>>> 38c7ec375d7d3ed5c305a00cc6b409598549b6a2
 
 void prepareStep(char *s[], int steps, int counter);
 void makeStep(char *ws);
@@ -82,11 +74,7 @@ void prepareStep(char *s[], int scale, int counter) {
     int i;
     char *ws;
     char *blankString = "0 0 0 0";
-<<<<<<< HEAD
-    uint8_t value = 0;
-=======
     uint8_t valueOnSix, valueOnSeven;
->>>>>>> 38c7ec375d7d3ed5c305a00cc6b409598549b6a2
     
     bcm2835_gpio_fsel(PIN1, BCM2835_GPIO_FSEL_OUTP);
     bcm2835_gpio_fsel(PIN2, BCM2835_GPIO_FSEL_OUTP);
@@ -97,11 +85,6 @@ void prepareStep(char *s[], int scale, int counter) {
     bcm2835_gpio_fsel(PIN7, BCM2835_GPIO_FSEL_INPT);
     
     while ( counter > 0 ) {
-<<<<<<< HEAD
-        value = bcm2835_gpio_lev(PIN5);
-        printf("Value of input = %d\n", value);
-        if ( value == 1 ) {
-=======
         valueOnSix = bcm2835_gpio_lev(PIN6);
         valueOnSeven = bcm2835_gpio_lev(PIN7);
         if ( valueOnSix == 1 ) {
@@ -117,7 +100,6 @@ void prepareStep(char *s[], int scale, int counter) {
             }
             counter -= 1;
         } else {
->>>>>>> 38c7ec375d7d3ed5c305a00cc6b409598549b6a2
             for ( i = 0; i < scale; i++ ) {
                 ws = s[i];
                 makeStep(ws);
@@ -150,8 +132,5 @@ void makeStep(char *ws) {
     bcm2835_gpio_write(PIN4, a[3]);
     bcm2835_delay(50);
 }
-<<<<<<< HEAD
-=======
     bcm2835_delay(50);
 }
->>>>>>> 38c7ec375d7d3ed5c305a00cc6b409598549b6a2
