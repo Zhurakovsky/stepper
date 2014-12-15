@@ -2,12 +2,13 @@
 #include <bcm2835.h>
 #include <stdio.h>
 
-
 #define PIN1 RPI_V2_GPIO_P1_12
 #define PIN2 RPI_V2_GPIO_P1_16
 #define PIN3 RPI_V2_GPIO_P1_18
 #define PIN4 RPI_V2_GPIO_P1_22
-#define PIN5 RPI_V2_GPIO_P1_7
+#define PIN5 RPI_V2_GPIO_P1_07
+#define PIN6 RPI_V2_GPIO_P1_11
+#define PIN7 RPI_V2_GPIO_P1_15
 
 void prepareStep(char *s[], int steps, int counter);
 void makeStep(char *ws);
@@ -45,7 +46,7 @@ int main() {
         if ( scale == 0 ) {
             break;
         }
-        printf("Input number of steps per cycle '0' for exit: ");
+        printf("Input 4 or 8 steps per cycle '0' for exit: ");
         scanf("%d", &scale);
     }
     
@@ -73,24 +74,40 @@ void prepareStep(char *s[], int scale, int counter) {
     int i;
     char *ws;
     char *blankString = "0 0 0 0";
-    uint8_t value;
+    uint8_t valueOnSix, valueOnSeven;
     
     bcm2835_gpio_fsel(PIN1, BCM2835_GPIO_FSEL_OUTP);
     bcm2835_gpio_fsel(PIN2, BCM2835_GPIO_FSEL_OUTP);
     bcm2835_gpio_fsel(PIN3, BCM2835_GPIO_FSEL_OUTP);
     bcm2835_gpio_fsel(PIN4, BCM2835_GPIO_FSEL_OUTP);
-    bcm2835_gpio_fsel(PIN5, BCM2835_GPIO_FSEL_INPT);
-    bcm2835_gpio_set_pud(PIN5, BCM2835_GPIO_PUD_UP);
+    bcm2835_gpio_fsel(PIN5, BCM2835_GPIO_FSEL_OUTP);
+    bcm2835_gpio_fsel(PIN6, BCM2835_GPIO_FSEL_INPT);
+    bcm2835_gpio_fsel(PIN7, BCM2835_GPIO_FSEL_INPT);
     
     while ( counter > 0 ) {
-        value = bcm2835_gpio_lev(PIN5);
-        if ( value == 1 ) {
+        valueOnSix = bcm2835_gpio_lev(PIN6);
+        valueOnSeven = bcm2835_gpio_lev(PIN7);
+        if ( valueOnSix == 1 ) {
+            for ( i = 0; i < scale; i++ ) {
+                ws = s[i];
+                makeStep(ws);
+            }
+            counter -= 1;
+        } else if ( valueOnSeven == 1 ) {
+            for ( i = scale; i > 0; i-- ) {
+                ws = s[i];
+                makeStep(ws);
+            }
+            counter -= 1;
+        } else {
             for ( i = 0; i < scale; i++ ) {
                 ws = s[i];
                 makeStep(ws);
             }
             counter -= 1;
         }
+        valueOnSix = 0;
+        valueOnSeven = 0;
     }
     makeStep(blankString);
 }
@@ -115,5 +132,5 @@ void makeStep(char *ws) {
     bcm2835_gpio_write(PIN4, a[3]);
     bcm2835_delay(50);
 }
- bcm2835_delay(50);
+    bcm2835_delay(50);
 }
