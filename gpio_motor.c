@@ -84,6 +84,7 @@ void prepareStep(char *s[], int scale, int counter) {
     bcm2835_gpio_fsel(PIN5, BCM2835_GPIO_FSEL_OUTP);
     bcm2835_gpio_fsel(PIN6, BCM2835_GPIO_FSEL_INPT);
     bcm2835_gpio_fsel(PIN7, BCM2835_GPIO_FSEL_INPT);
+    bcm2835_gpio_write(PIN5, HIGH);
     
     while ( counter != -1 ) {
         valueOnSix = bcm2835_gpio_lev(PIN6);
@@ -103,6 +104,7 @@ void prepareStep(char *s[], int scale, int counter) {
         }
         valueOnSix = 0;
         valueOnSeven = 0;
+        makeStep(blankString);
     }
     makeStep(blankString);
 }
