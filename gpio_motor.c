@@ -1,4 +1,5 @@
 // compile: sudo gcc gpiotest.c -o gpiotest.exe -l bcm2835
+// version 0.1 master
 #include <bcm2835.h>
 #include <stdio.h>
 
