@@ -126,5 +126,3 @@ void makeStep(char *ws) {
     bcm2835_gpio_write(PIN4, a[3]);
     bcm2835_delay(50);
 }
-    bcm2835_delay(50);
-}
