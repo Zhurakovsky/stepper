@@ -51,12 +51,10 @@ int main() {
         scanf("%d", &scale);
     }
     
-   
+
     if ( scale != 0 ) {
-        printf("Input number of steps: ");
-        scanf("%d", &counter);
+        counter = 1;
     }
-   
     
     if ( scale == 4 ) {
         prepareStep(steps4, scale, counter);
@@ -86,6 +84,7 @@ void prepareStep(char *s[], int scale, int counter) {
     bcm2835_gpio_fsel(PIN5, BCM2835_GPIO_FSEL_OUTP);
     bcm2835_gpio_fsel(PIN6, BCM2835_GPIO_FSEL_INPT);
     bcm2835_gpio_fsel(PIN7, BCM2835_GPIO_FSEL_INPT);
+    bcm2835_gpio_write(PIN5, HIGH);
     
     while ( counter > 0 ) {
         valueOnSix = bcm2835_gpio_lev(PIN6);
@@ -95,24 +94,17 @@ void prepareStep(char *s[], int scale, int counter) {
                 ws = s[i];
                 makeStep(ws);
             }
-            //counter -= 1;
+
         } else if ( valueOnSeven == 1 ) {
             for ( i = scale; i > 0; i-- ) {
                 ws = s[i];
                 makeStep(ws);
             }
-            //counter -= 1;
-        } else {
-            /*
-            for ( i = 0; i < scale; i++ ) {
-                ws = s[i];
-                makeStep(ws);
-            }
-            counter -= 1;
-            */
+
         }
         valueOnSix = 0;
         valueOnSeven = 0;
+        makeStep(blankString);
     }
     makeStep(blankString);
 }
