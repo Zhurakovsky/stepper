@@ -1,5 +1,8 @@
 stepper
 =======
+useful debounsing description: 
+http://stackoverflow.com/questions/16306901/c-program-a-button-to-perform-a-task-once-when-pressed-latch
+
 
 how to control stepper motor from raspberry pi and bcm2835
 

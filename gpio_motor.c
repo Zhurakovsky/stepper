@@ -76,6 +76,7 @@ void prepareStep(char *s[], int scale, int counter) {
     char *ws;
     char *blankString = "0 0 0 0";
     uint8_t valueOnSix, valueOnSeven;
+    char flagButtonRelease = 1;
     
     bcm2835_gpio_fsel(PIN1, BCM2835_GPIO_FSEL_OUTP);
     bcm2835_gpio_fsel(PIN2, BCM2835_GPIO_FSEL_OUTP);
@@ -88,27 +89,32 @@ void prepareStep(char *s[], int scale, int counter) {
     bcm2835_gpio_write(PIN6, LOW);
     bcm2835_gpio_write(PIN7, LOW);
     
-    while ( counter > 0 ) {
+    while ( 1 ) {
         valueOnSix = bcm2835_gpio_lev(PIN6);
         valueOnSeven = bcm2835_gpio_lev(PIN7);
-        if ( valueOnSix == 1 ) {
+        if ( valueOnSix == 1 && flagButtonRelease == 1 ) {
             for ( i = 0; i < scale; i++ ) {
                 ws = s[i];
                 makeStep(ws);
             }
+            flagButtonRelease = 0;
 
-        } else if ( valueOnSeven == 1 ) {
+        } else if ( valueOnSeven == 1  && flagButtonRelease == 1 ) {
             for ( i = scale - 1; i >= 0; i-- ) {
                 ws = s[i];
                 makeStep(ws);
             }
+            flagButtonRelease = 0;
 
+        } else {
+            if ( !valueOnSix && !valueOnSeven ) {
+                flagButtonRelease = 1;
+            }
         }
         valueOnSix = 0;
         valueOnSeven = 0;
         makeStep(blankString);
     }
-    makeStep(blankString);
 }
 
 void makeStep(char *ws) {
