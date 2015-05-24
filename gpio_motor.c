@@ -44,6 +44,9 @@ int main() {
     while(read(fd, &ie, sizeof(struct input_event))) {
         printf("time %ld.%06ld\ttype %d\tcode %d\tvalue %d\n",
                ie.time.tv_sec, ie.time.tv_usec, ie.type, ie.code, ie.value);
+        if ( ie.code == 273 ) {
+            break;
+        }
     }
     
     steps4[0] = "1 0 0 1";
