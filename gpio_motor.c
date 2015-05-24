@@ -25,9 +25,9 @@ int main() {
     int fd;
     struct input_event ie;
     
-    int scale = 0;
+    int scale = 4;
     int i;
-    int counter =  -1;
+    int counter =  1;
     char* steps4[4];
     char* steps8[8];
     char* workingSteps;
@@ -45,12 +45,12 @@ int main() {
         printf("time %ld.%06ld\ttype %d\tcode %d\tvalue %d\n",
                ie.time.tv_sec, ie.time.tv_usec, ie.type, ie.code, ie.value);
     }
-    /*
+    
     steps4[0] = "1 0 0 1";
     steps4[1] = "0 1 0 1";
     steps4[2] = "0 1 1 0";
     steps4[3] = "1 0 1 0";
-    
+    /*
     steps8[0] = "1 0 0 1";
     steps8[1] = "0 0 0 1";
     steps8[2] = "0 1 0 1";
@@ -82,9 +82,10 @@ int main() {
     } else {
         return 0;
     }
-    
-    makeStep(blankString);
     */
+    prepareStep(steps4, scale, counter);
+    makeStep(blankString);
+    
     bcm2835_close();
     
     return 0;
