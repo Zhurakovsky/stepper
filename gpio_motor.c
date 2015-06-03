@@ -7,7 +7,7 @@
 #include <unistd.h>
 #include <linux/input.h>
 #include <fcntl.h> 
-#define MOUSEFILE "/dev/input/event1"
+#define MOUSEFILE "/dev/input/event0"
 
 #define PIN1 RPI_V2_GPIO_P1_12
 #define PIN2 RPI_V2_GPIO_P1_16
