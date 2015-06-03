@@ -47,6 +47,8 @@ int main() {
         fprintf(stderr,"Error - pthread_create() return code: %d\n", tableThreadError);
         exit(EXIT_FAILURE);
     }
+    pthread_join( mouseThread, NULL);
+    pthread_join( tableThread, NULL);
     
     bcm2835_close();
     
@@ -98,11 +100,13 @@ void *tableRotator(int *mouseStateFlag) {
     bcm2835_gpio_fsel(PIN4, BCM2835_GPIO_FSEL_OUTP);
     
     while ( mouseStateFlag != 274 && mouseStateFlag != 0 ) {
-        makeStep(blankString);
-        for (int i = 0; i < 4; i++ ) {
-            makeStep(steps4[i]);
+        if (mouseStateFlag == 272 || mouseStateFlag == 273 ) {
+            makeStep(blankString);
+            for (int i = 0; i < 4; i++ ) {
+                makeStep(steps4[i]);
+            }
+            makeStep(blankString);
         }
-        makeStep(blankString);
         pthread_mutex_lock(&mutex1);
         *mouseStateFlag = 0;
         pthread_mutex_unlock(&mutex1);
