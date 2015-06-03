@@ -21,28 +21,28 @@
 
 pthread_mutex_t mutex1 = PTHREAD_MUTEX_INITIALIZER;
 
-void *mouseListener(int *mouseStateFlag);
-void *tableRotator(int *mouseStateFlag);
+void *mouseListener();
+void *tableRotator();
 //void prepareStep(char *s[], int steps, int counter);
 void makeStep(char *ws);
+
+int mouseStateFlag=0;
 
 int main() {
     pthread_t mouseThread, tableThread;
     int mouseThreadError, tableThreadError;
-    int *mouseStateFlag;
     
     if ( !bcm2835_init() ) {
         return 1;
     }
     
-    *mouseStateFlag = 0;
-    mouseThreadError = pthread_create(&mouseThread, NULL, mouseListener, mouseStateFlag);
+    mouseThreadError = pthread_create(&mouseThread, NULL, mouseListener, NULL);
     if( mouseThreadError ) {
         fprintf(stderr,"Error - pthread_create() return code: %d\n", mouseThreadError);
         exit(EXIT_FAILURE);
     }
     
-    tableThreadError = pthread_create(&tableThread, NULL, tableRotator, mouseStateFlag);
+    tableThreadError = pthread_create(&tableThread, NULL, tableRotator, NULL);
     if( tableThreadError ) {
         fprintf(stderr,"Error - pthread_create() return code: %d\n", tableThreadError);
         exit(EXIT_FAILURE);
@@ -55,7 +55,7 @@ int main() {
     return 0;
 }
 
-void *mouseListener(int *mouseStateFlag) {
+void *mouseListener() {
     int fd;
     struct input_event ie;
     
@@ -82,7 +82,7 @@ void *mouseListener(int *mouseStateFlag) {
     }
 }
 
-void *tableRotator(int *mouseStateFlag) {
+void *tableRotator() {
     int i;
     char* steps4[4];
     //char* steps8[8];
@@ -99,7 +99,7 @@ void *tableRotator(int *mouseStateFlag) {
     bcm2835_gpio_fsel(PIN3, BCM2835_GPIO_FSEL_OUTP);
     bcm2835_gpio_fsel(PIN4, BCM2835_GPIO_FSEL_OUTP);
     
-    while ( mouseStateFlag != 274 && mouseStateFlag != 0 ) {
+    while ( mouseStateFlag != 274 ) {
         if (mouseStateFlag == 272 || mouseStateFlag == 273 ) {
             makeStep(blankString);
             for (int i = 0; i < 4; i++ ) {
