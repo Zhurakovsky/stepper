@@ -6,19 +6,31 @@
 
 #define MOUSEFILE "/dev/input/event1"
 
+void mouseListener();
+
 int main() {
+    
+    pthread_t mouseThread, thread2;
+    int mouseThreadError;
+    
+    return 0;
+}
+
+void mouseListener() {
     int fd;
     struct input_event ie;
     
     if((fd = open(MOUSEFILE, O_RDONLY)) == -1) {
-        perror("opening device");
+        perror("opening device error");
         exit(EXIT_FAILURE);
     }
     while(read(fd, &ie, sizeof(struct input_event))) {
-        printf("time %ld.%06ld\ttype %d\tcode %d\tvalue %d\n",
-               ie.time.tv_sec, ie.time.tv_usec, ie.type, ie.code, ie.value);
+        while (ie.type != 274) {
+            printf("time %ld.%06ld\ttype %d\tcode %d\tvalue %d\n", 
+                   ie.time.tv_sec, ie.time.tv_usec, ie.type, ie.code, ie.value);
+        }
+        
     }
-    return 0;
 }
 
 /*

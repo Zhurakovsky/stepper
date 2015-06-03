@@ -1,8 +1,8 @@
- // compile: sudo gcc gpiotest.c -o gpiotest.exe -l bcm2835
+ // compile: sudo gcc -std=c99 gpiotest.c -o gpiotest.exe -l bcm2835 -pthread
 // version 0.1 master
 #include <bcm2835.h>
 #include <stdio.h>
-
+#include <pthread.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <linux/input.h>
@@ -18,87 +18,100 @@
 #define PIN6 RPI_V2_GPIO_P1_11
 #define PIN7 RPI_V2_GPIO_P1_15
 */
-void prepareStep(char *s[], int steps, int counter);
+
+pthread_mutex_t mutex1 = PTHREAD_MUTEX_INITIALIZER;
+
+void *mouseListener(int *mouseStateFlag);
+void *tableRotator(int *mouseStateFlag);
+//void prepareStep(char *s[], int steps, int counter);
 void makeStep(char *ws);
 
 int main() {
-    int fd;
-    struct input_event ie;
-    
-    int scale = 4;
-    int i;
-    int counter =  1;
-    char* steps4[4];
-    char* steps8[8];
-    char* workingSteps;
-    char *blankString = "0 0 0 0";
+    pthread_t mouseThread, tableThread;
+    int mouseThreadError, tableThreadError;
+    int *mouseStateFlag;
     
     if ( !bcm2835_init() ) {
         return 1;
     }
-    // открываем файл мышки для отслеживания событий
-    if((fd = open(MOUSEFILE, O_RDONLY)) == -1) {
-        perror("opening device");
+    
+    *mouseStateFlag = 0;
+    mouseThreadError = pthread_create(&mouseThread, NULL, mouseListener, mouseStateFlag);
+    if( mouseThreadError ) {
+        fprintf(stderr,"Error - pthread_create() return code: %d\n", mouseThreadError);
         exit(EXIT_FAILURE);
     }
-    while(read(fd, &ie, sizeof(struct input_event))) {
-        printf("time %ld.%06ld\ttype %d\tcode %d\tvalue %d\n",
-               ie.time.tv_sec, ie.time.tv_usec, ie.type, ie.code, ie.value);
-        if ( ie.code == 273 ) {
-            break;
-        }
-    }
     
-    steps4[0] = "1 0 0 1";
-    steps4[1] = "0 1 0 1";
-    steps4[2] = "0 1 1 0";
-    steps4[3] = "1 0 1 0";
-    /*
-    steps8[0] = "1 0 0 1";
-    steps8[1] = "0 0 0 1";
-    steps8[2] = "0 1 0 1";
-    steps8[3] = "0 1 0 0";
-    steps8[4] = "0 1 1 0";
-    steps8[5] = "0 0 1 0";
-    steps8[6] = "1 0 1 0";
-    steps8[7] = "1 0 0 0";
-    
-    printf("Input 4 or 8 steps per cycle '0' for exit: ");
-    scanf("%d", &scale);
-    while ( scale != 4 && scale != 8 ) {
-        if ( scale == 0 ) {
-            break;
-        }
-        printf("Input 4 or 8 steps per cycle '0' for exit: ");
-        scanf("%d", &scale);
+    tableThreadError = pthread_create(&tableThread, NULL, tableRotator, mouseStateFlag);
+    if( tableThreadError ) {
+        fprintf(stderr,"Error - pthread_create() return code: %d\n", tableThreadError);
+        exit(EXIT_FAILURE);
     }
-    
-
-    if ( scale != 0 ) {
-        counter = 1;
-    }
-    
-    if ( scale == 4 ) {
-        prepareStep(steps4, scale, counter);
-    } else if ( scale == 8 ) {
-        prepareStep(steps8, scale, counter);
-    } else {
-        return 0;
-    }
-    */
-    prepareStep(steps4, scale, counter);
-    makeStep(blankString);
     
     bcm2835_close();
     
     return 0;
 }
 
-void prepareStep(char *s[], int scale, int counter) {
-    int a[4];
+void *mouseListener(int *mouseStateFlag) {
+    int fd;
+    struct input_event ie;
+    
+    if((fd = open(MOUSEFILE, O_RDONLY)) == -1) {
+        perror("opening device");
+        exit(EXIT_FAILURE);
+    }
+    while(read(fd, &ie, sizeof(struct input_event))) {
+        while ( ie.type != 274 ) {
+            printf("time %ld.%06ld\ttype %d\tcode %d\tvalue %d\n", 
+                   ie.time.tv_sec, ie.time.tv_usec, ie.type, ie.code, ie.value);
+            if (ie.type == 272 || ie.type == 273) {
+                if ( *mouseStateFlag == 0 ) {
+                    pthread_mutex_lock(&mutex1);
+                    *mouseStateFlag = ie.type;
+                    pthread_mutex_unlock(&mutex1);
+                }
+            }
+        }
+        pthread_mutex_lock(&mutex1);
+        *mouseStateFlag = ie.type;
+        pthread_mutex_unlock(&mutex1);
+        return;
+    }
+}
+
+void *tableRotator(int *mouseStateFlag) {
     int i;
-    char *ws;
+    char* steps4[4];
+    //char* steps8[8];
+    //char* workingSteps;
     char *blankString = "0 0 0 0";
+    
+    steps4[0] = "1 0 0 1";
+    steps4[1] = "0 1 0 1";
+    steps4[2] = "0 1 1 0";
+    steps4[3] = "1 0 1 0";
+    
+    bcm2835_gpio_fsel(PIN1, BCM2835_GPIO_FSEL_OUTP);
+    bcm2835_gpio_fsel(PIN2, BCM2835_GPIO_FSEL_OUTP);
+    bcm2835_gpio_fsel(PIN3, BCM2835_GPIO_FSEL_OUTP);
+    bcm2835_gpio_fsel(PIN4, BCM2835_GPIO_FSEL_OUTP);
+    
+    while ( mouseStateFlag != 274 && mouseStateFlag != 0 ) {
+        makeStep(blankString);
+        for (int i = 0; i < 4; i++ ) {
+            makeStep(steps4[i]);
+        }
+        makeStep(blankString);
+        pthread_mutex_lock(&mutex1);
+        *mouseStateFlag = 0;
+        pthread_mutex_unlock(&mutex1);
+    } 
+}
+
+/*
+ * void prepareStep(char *s[], int scale, int counter) {
+    
     //uint8_t valueOnSix, valueOnSeven;
     //char flagButtonRelease = 1;
     
@@ -106,7 +119,7 @@ void prepareStep(char *s[], int scale, int counter) {
     bcm2835_gpio_fsel(PIN2, BCM2835_GPIO_FSEL_OUTP);
     bcm2835_gpio_fsel(PIN3, BCM2835_GPIO_FSEL_OUTP);
     bcm2835_gpio_fsel(PIN4, BCM2835_GPIO_FSEL_OUTP);
-    /*
+
     попробуем без кнопок. управляем мышкой.
     bcm2835_gpio_fsel(PIN5, BCM2835_GPIO_FSEL_OUTP);
     bcm2835_gpio_fsel(PIN6, BCM2835_GPIO_FSEL_INPT);
@@ -114,40 +127,12 @@ void prepareStep(char *s[], int scale, int counter) {
     bcm2835_gpio_write(PIN5, HIGH);
     bcm2835_gpio_write(PIN6, LOW);
     bcm2835_gpio_write(PIN7, LOW);
-    */
-    while ( 1 ) {
-    //    valueOnSix = bcm2835_gpio_lev(PIN6);
-    //    valueOnSeven = bcm2835_gpio_lev(PIN7);
-    //    if ( valueOnSix == 1 && flagButtonRelease == 1 ) {
-            for ( i = 0; i < scale; i++ ) {
-                ws = s[i];
-                makeStep(ws);
-            }
-    //        flagButtonRelease = 0;
-
-    //    } else if ( valueOnSeven == 1  && flagButtonRelease == 1 ) {
-     //       for ( i = scale - 1; i >= 0; i-- ) {
-      //          ws = s[i];
-      //          makeStep(ws);
-     //       }
-     //       flagButtonRelease = 0;
-
-     //   } else {
-     //       if ( !valueOnSix && !valueOnSeven ) {
-     //           flagButtonRelease = 1;
-      //      }
-      //  }
-      //  valueOnSix = 0;
-      //  valueOnSeven = 0;
-        makeStep(blankString);
-    }
 }
+*/
 
 void makeStep(char *ws) {
     int a[4];
-    int i;
-    
-    for ( i = 0; i < 4 && *ws != '\0'; ) {
+    for ( int i = 0; i < 4 && *ws != '\0'; ) {
         if ( *ws != ' ' ) {
             a[i] = *ws - '0';
             i++;
