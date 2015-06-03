@@ -26,7 +26,7 @@ void *tableRotator();
 //void prepareStep(char *s[], int steps, int counter);
 void makeStep(char *ws);
 
-int mouseStateFlag=0;
+int mouseStateFlag=0x000;
 
 int main() {
     pthread_t mouseThread, tableThread;
@@ -64,19 +64,21 @@ void *mouseListener() {
         exit(EXIT_FAILURE);
     }
     while(read(fd, &ie, sizeof(struct input_event))) {
-        while ( ie.type != 274 ) {
+        while ( ie.type != 0x112 ) {
             printf("time %ld.%06ld\ttype %d\tcode %d\tvalue %d\n", 
                    ie.time.tv_sec, ie.time.tv_usec, ie.type, ie.code, ie.value);
-            if (ie.type == 272 || ie.type == 273) {
-                if ( mouseStateFlag == 0 ) {
-                    pthread_mutex_lock(&mutex1);
-                    mouseStateFlag = ie.type;
-                    pthread_mutex_unlock(&mutex1);
-                }
+            if (ie.type == 0x110 || ie.type == 0x111) {
+                //if ( mouseStateFlag == 0 ) {
+                pthread_mutex_lock(&mutex1);
+                mouseStateFlag = ie.type;
+                
+                pthread_mutex_unlock(&mutex1);
+                //}
             }
         }
         pthread_mutex_lock(&mutex1);
         mouseStateFlag = ie.type;
+        printf("We catch mouse %d\n", mouseStateFlag);
         pthread_mutex_unlock(&mutex1);
         return;
     }
@@ -99,8 +101,8 @@ void *tableRotator() {
     bcm2835_gpio_fsel(PIN3, BCM2835_GPIO_FSEL_OUTP);
     bcm2835_gpio_fsel(PIN4, BCM2835_GPIO_FSEL_OUTP);
     
-    while ( mouseStateFlag != 274 ) {
-        if (mouseStateFlag == 272 || mouseStateFlag == 273 ) {
+    while ( mouseStateFlag != 0x112 ) {
+        if (mouseStateFlag == 0x110 || mouseStateFlag == 0x110 ) {
             makeStep(blankString);
             for (int i = 0; i < 4; i++ ) {
                 makeStep(steps4[i]);
@@ -108,7 +110,7 @@ void *tableRotator() {
             makeStep(blankString);
         }
         pthread_mutex_lock(&mutex1);
-        mouseStateFlag = 0;
+        mouseStateFlag = 0x000;
         pthread_mutex_unlock(&mutex1);
     } 
 }
