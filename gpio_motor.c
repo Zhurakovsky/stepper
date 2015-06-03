@@ -68,15 +68,15 @@ void *mouseListener() {
             printf("time %ld.%06ld\ttype %d\tcode %d\tvalue %d\n", 
                    ie.time.tv_sec, ie.time.tv_usec, ie.type, ie.code, ie.value);
             if (ie.type == 272 || ie.type == 273) {
-                if ( *mouseStateFlag == 0 ) {
+                if ( mouseStateFlag == 0 ) {
                     pthread_mutex_lock(&mutex1);
-                    *mouseStateFlag = ie.type;
+                    mouseStateFlag = ie.type;
                     pthread_mutex_unlock(&mutex1);
                 }
             }
         }
         pthread_mutex_lock(&mutex1);
-        *mouseStateFlag = ie.type;
+        mouseStateFlag = ie.type;
         pthread_mutex_unlock(&mutex1);
         return;
     }
@@ -108,7 +108,7 @@ void *tableRotator() {
             makeStep(blankString);
         }
         pthread_mutex_lock(&mutex1);
-        *mouseStateFlag = 0;
+        mouseStateFlag = 0;
         pthread_mutex_unlock(&mutex1);
     } 
 }
