@@ -124,7 +124,7 @@ void *tableRotator() {
     ret2 = 0;
     pthread_exit(&ret2);
 }
-
+ 
 /*
  * void prepareStep(char *s[], int scale, int counter) {
     
