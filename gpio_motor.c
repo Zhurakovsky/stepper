@@ -38,15 +38,20 @@ int main() {
     
     mouseThreadError = pthread_create(&mouseThread, NULL, mouseListener, NULL);
     if( mouseThreadError ) {
-        fprintf(stderr,"Error - pthread_create() return code: %d\n", mouseThreadError);
-        exit(EXIT_FAILURE);
+        printf("Error - pthread_create() return code: %d\n", mouseThreadError);
+        exit(1);
+    } else {
+        printf("MouseThread created\n");
     }
     
     tableThreadError = pthread_create(&tableThread, NULL, tableRotator, NULL);
     if( tableThreadError ) {
-        fprintf(stderr,"Error - pthread_create() return code: %d\n", tableThreadError);
+        printf("Error - pthread_create() return code: %d\n", tableThreadError);
         exit(EXIT_FAILURE);
+    } else {
+        printf("TableThread created\n");
     }
+    
     pthread_join( mouseThread, NULL);
     pthread_join( tableThread, NULL);
     
@@ -64,22 +69,19 @@ void *mouseListener() {
         exit(EXIT_FAILURE);
     }
     while(read(fd, &ie, sizeof(struct input_event))) {
-        while ( ie.type != 0x112 ) {
-            printf("time %ld.%06ld\ttype %d\tcode %d\tvalue %d\n", 
-                   ie.time.tv_sec, ie.time.tv_usec, ie.type, ie.code, ie.value);
-            if (ie.type == 0x110 || ie.type == 0x111) {
-                //if ( mouseStateFlag == 0 ) {
-                pthread_mutex_lock(&mutex1);
-                mouseStateFlag = ie.type;
-                
-                pthread_mutex_unlock(&mutex1);
-                //}
-            }
+        if ( ie.type == 0x110 || ie.type == 0x111 ) {
+            printf("type %d\tcode %d\tvalue %d\n", ie.type, ie.code, ie.value);    
+            pthread_mutex_lock(&mutex1);
+            mouseStateFlag = ie.type;
+            pthread_mutex_unlock(&mutex1);
+        
+            pthread_mutex_lock(&mutex1);
+            mouseStateFlag = ie.type;
+            printf("We catch mouse %d\n", mouseStateFlag);
+            pthread_mutex_unlock(&mutex1);
+        } else if (ie.type == 0x112) {
+            pthread_exit();
         }
-        pthread_mutex_lock(&mutex1);
-        mouseStateFlag = ie.type;
-        printf("We catch mouse %d\n", mouseStateFlag);
-        pthread_mutex_unlock(&mutex1);
         return;
     }
 }
@@ -102,7 +104,7 @@ void *tableRotator() {
     bcm2835_gpio_fsel(PIN4, BCM2835_GPIO_FSEL_OUTP);
     
     while ( mouseStateFlag != 0x112 ) {
-        if (mouseStateFlag == 0x110 || mouseStateFlag == 0x110 ) {
+        if (mouseStateFlag == 0x110 || mouseStateFlag == 0x111 ) {
             makeStep(blankString);
             for (int i = 0; i < 4; i++ ) {
                 makeStep(steps4[i]);
