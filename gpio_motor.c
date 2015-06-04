@@ -26,7 +26,7 @@ void *tableRotator();
 //void prepareStep(char *s[], int steps, int counter);
 void makeStep(char *ws);
 
-int mouseStateFlag=0x000;
+int mouseStateFlag=0;
 int ret1, ret2;
 
 int main() {
@@ -80,7 +80,7 @@ void *mouseListener() {
             pthread_mutex_unlock(&mutex1);
         
             pthread_mutex_lock(&mutex1);
-            mouseStateFlag = ie.type;
+            mouseStateFlag = ie.code;
             printf("We catch mouse %d\n", mouseStateFlag);
             pthread_mutex_unlock(&mutex1);
         } else if (ie.code == 274) {
@@ -109,8 +109,8 @@ void *tableRotator() {
     bcm2835_gpio_fsel(PIN3, BCM2835_GPIO_FSEL_OUTP);
     bcm2835_gpio_fsel(PIN4, BCM2835_GPIO_FSEL_OUTP);
     
-    while ( mouseStateFlag != 0x112 ) {
-        if (mouseStateFlag == 0x110 || mouseStateFlag == 0x111 ) {
+    while ( mouseStateFlag != 274 ) {
+        if (mouseStateFlag == 272 || mouseStateFlag == 273 ) {
             makeStep(blankString);
             for (int i = 0; i < 4; i++ ) {
                 makeStep(steps4[i]);
@@ -118,7 +118,7 @@ void *tableRotator() {
             makeStep(blankString);
         }
         pthread_mutex_lock(&mutex1);
-        mouseStateFlag = 0x000;
+        mouseStateFlag = 0;
         pthread_mutex_unlock(&mutex1);
     }
     ret2 = 0;
