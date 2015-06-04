@@ -27,10 +27,12 @@ void *tableRotator();
 void makeStep(char *ws);
 
 int mouseStateFlag=0x000;
+int ret1, ret2;
 
 int main() {
     pthread_t mouseThread, tableThread;
     int mouseThreadError, tableThreadError;
+    int *ptr[2];
     
     if ( !bcm2835_init() ) {
         return 1;
@@ -52,8 +54,8 @@ int main() {
         printf("TableThread created\n");
     }
     
-    pthread_join( mouseThread, NULL);
-    pthread_join( tableThread, NULL);
+    pthread_join( mouseThread, (void**)&(ptr[0]));
+    pthread_join( tableThread, (void**)&(ptr[1]));
     
     bcm2835_close();
     
@@ -80,7 +82,8 @@ void *mouseListener() {
             printf("We catch mouse %d\n", mouseStateFlag);
             pthread_mutex_unlock(&mutex1);
         } else if (ie.type == 0x112) {
-            pthread_exit();
+            ret1 = 0;
+            pthread_exit(&ret1);
         }
         return;
     }
@@ -114,7 +117,9 @@ void *tableRotator() {
         pthread_mutex_lock(&mutex1);
         mouseStateFlag = 0x000;
         pthread_mutex_unlock(&mutex1);
-    } 
+    }
+    ret2 = 0;
+    pthread_exit(&ret2);
 }
 
 /*
