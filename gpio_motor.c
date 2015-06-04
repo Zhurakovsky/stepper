@@ -7,7 +7,7 @@
 #include <unistd.h>
 #include <linux/input.h>
 #include <fcntl.h> 
-#define MOUSEFILE "/dev/input/mice"
+#define MOUSEFILE "/dev/input/event0"
 
 #define PIN1 RPI_V2_GPIO_P1_12
 #define PIN2 RPI_V2_GPIO_P1_16
@@ -71,7 +71,9 @@ void *mouseListener() {
         exit(EXIT_FAILURE);
     }
     while(read(fd, &ie, sizeof(struct input_event))) {
-        if ( ie.type == 0x110 || ie.type == 0x111 ) {
+        printf("time %ld.%06ld\ttype %d\tcode %d\tvalue %d\n", 
+                   ie.time.tv_sec, ie.time.tv_usec, ie.type, ie.code, ie.value);
+        if ( ie.type == 272 || ie.type == 273 ) {
             printf("type %d\tcode %d\tvalue %d\n", ie.type, ie.code, ie.value);    
             pthread_mutex_lock(&mutex1);
             mouseStateFlag = ie.type;
@@ -81,7 +83,7 @@ void *mouseListener() {
             mouseStateFlag = ie.type;
             printf("We catch mouse %d\n", mouseStateFlag);
             pthread_mutex_unlock(&mutex1);
-        } else if (ie.type == 0x112) {
+        } else if (ie.type == 274) {
             ret1 = 0;
             pthread_exit(&ret1);
         }
