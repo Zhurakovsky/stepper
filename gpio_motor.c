@@ -87,8 +87,9 @@ void *mouseListener() {
             ret1 = 0;
             pthread_exit(&ret1);
         }
-        return 0;
+        
     }
+    return 0;
 }
 
 void *tableRotator() {
