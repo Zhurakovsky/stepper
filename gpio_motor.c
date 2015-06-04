@@ -7,7 +7,7 @@
 #include <unistd.h>
 #include <linux/input.h>
 #include <fcntl.h> 
-#define MOUSEFILE "/dev/input/event0"
+#define MOUSEFILE "/dev/input/mouse0"
 
 #define PIN1 RPI_V2_GPIO_P1_12
 #define PIN2 RPI_V2_GPIO_P1_16
@@ -85,7 +85,7 @@ void *mouseListener() {
             ret1 = 0;
             pthread_exit(&ret1);
         }
-        return;
+        return 0;
     }
 }
 
